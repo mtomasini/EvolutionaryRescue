@@ -1,5 +1,14 @@
 """
+Created: ? 2018
+Updated: may 2019
+Author: Matteo Tomasini
+Paper: When does gene flow facilitate evolutionary rescue?
+doi: https://doi.org/10.1101/622142
+
 This file generates a file of parameters to be used in "main_simulation.py".
+To generate a new file of parameters, update the lists with the parameters you'd like to simulate.
+
+Version: Python 3.x (last tested, Python 3.6)
 """
 
 import numpy as np
