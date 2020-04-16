@@ -1,6 +1,16 @@
 """
-We simulate evolutionary rescue with two demes.
-This code needs a file of parameters to work. Hence it reads the text file.
+Created: ? 2018
+Updated: may 2019
+Author: Matteo Tomasini
+Paper: When does gene flow facilitate evolutionary rescue?
+doi: https://doi.org/10.1101/622142
+
+In this script, we simulate evolutionary rescue in a habitat with 2 demes.
+To work, the script needs a file called "parameters.txt" that contains the parameters (see example in the folder).
+
+Modify the variables in the beginning of the script to change the parameters of the simulation.
+
+Python version: 3.X (last tested: 3.6)
 """
 
 import numpy as np
