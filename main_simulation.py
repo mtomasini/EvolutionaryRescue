@@ -1,6 +1,7 @@
 """
-Created: ? 2018
+Created: 2018
 Updated: may 2019
+Commented: may 2020
 Author: Matteo Tomasini
 Paper: When does gene flow facilitate evolutionary rescue?
 doi: https://doi.org/10.1101/622142
@@ -17,20 +18,29 @@ import numpy as np
 import math
 import time
 
-BURNING_PHASE = 0
-BURNING_OFF = 500
-STANDING_GENETIC_VARIATION = True
-IS_BEVERTON_HOLT = False
-DENSITY_REGULATION = True
-THRESHOLD = 0.5
+BURNING_PHASE = 0                       # no burning phase as we normally start with initial frequency f_0
+BURNING_OFF = 500                       # number of generations simulated after whole deme is deteriorated
+STANDING_GENETIC_VARIATION = True       # do we simulate standing genetic variation? (If false sets initial_frequency = 0)
+IS_BEVERTON_HOLT = False                # if True, uses Beverton-Hold dynamics in undeteriorated deme
+DENSITY_REGULATION = True               # if True, regulates density to carrying capacity
+THRESHOLD = 0.5                         # percentage of carrying capacity necessary to declare rescue
+
+
+# FUNCTIONS
 
 
 def zero_maker(length):
+    """
+    Custom function to make list of zeros (for readability)
+    """
     list_of_zeros = [0] * length
     return list_of_zeros
 
 
 def positive(number):
+    """
+    Custom function to set to zero negative numbers, does nothing with numbers >= 0
+    """
     if number < 0:
         return 0
     else:
@@ -38,12 +48,19 @@ def positive(number):
 
 
 def deteriorate(what_time_is_it):
+    """
+    Sets is_deteriorated of a deme to True according to the time in the simulation
+    """
     for it in iteration_list:
         if what_time_is_it >= (BURNING_PHASE + it * epoch):
             deme_deterioration_state[it] = True
 
 
 def expected_offspring(is_deteriorated, deme_population, deme_capacity, is_mutant):
+    """
+    Calculates the expected mutant or wildtype offspring in a deme according to whether that deme is deteriorated, its population.
+    """
+
     if is_deteriorated and is_mutant:
         fitness = 1. + selection_for
     elif is_deteriorated and not is_mutant:
@@ -65,17 +82,23 @@ def expected_offspring(is_deteriorated, deme_population, deme_capacity, is_mutan
 
 
 def reproduce(mutants_in_world, wildtypes_in_world):
+    """
+    Extract poisson distributed numbers for offsprings according to the expected offspring
+    """
     for i in iteration_list:
         total_population = mutants_in_world[i] + wildtypes_in_world[i]
         expected_mutants = expected_offspring(deme_deterioration_state[i], total_population,
                                               carrying_capacities[i], True)
         expected_wildtypes = expected_offspring(deme_deterioration_state[i], total_population,
                                                 carrying_capacities[i], False)
-        mutants_in_world[i] = np.random.poisson(mutants_in_world[i]*expected_mutants)
-        wildtypes_in_world[i] = np.random.poisson(wildtypes_in_world[i]*expected_wildtypes)
+        mutants_in_world[i] = np.random.poisson(mutants_in_world[i] * expected_mutants)
+        wildtypes_in_world[i] = np.random.poisson(wildtypes_in_world[i] * expected_wildtypes)
 
 
 def generate_new_mutants(wildtypes):
+    """
+    If we are within the time limits set by the variable WINDOW_OF_MUTATION, generates new mutants from wildtype with binomial sampling
+    """
     new_mutants = zero_maker(number_of_demes)
     if WINDOW_OF_MUTATION[0] < generation < WINDOW_OF_MUTATION[1]:
         for i in iteration_list:
@@ -86,12 +109,16 @@ def generate_new_mutants(wildtypes):
 
 
 def migrate(mutants_in_world, wildtypes_in_world):
+    """
+    Models migration as binomial sampling: first selects wildtypes going right from left deme, then viceversa, then moves them.
+    Distinction between wildtypes and mutants is done according to current mutant_frequencies
+    """
     total_population = [0, 0]
     mutant_frequencies = [0., 0.]
     for i in iteration_list:
         total_population[i] = mutants_in_world[i] + wildtypes_in_world[i]
         if total_population[i] > 0:
-            mutant_frequencies[i] = float(mutants_in_world[i])/total_population[i]
+            mutant_frequencies[i] = float(mutants_in_world[i]) / total_population[i]
 
     wildtypes_going_right = np.random.binomial(wildtypes_in_world[0], migration_rate_1to2)
     mutants_going_right = np.random.binomial(mutants_in_world[0], migration_rate_1to2)
@@ -105,6 +132,9 @@ def migrate(mutants_in_world, wildtypes_in_world):
 
 
 def down_regulate_density(mutants_in_world, wildtypes_in_world):
+    """
+    If population in non-deteriorated deme is too high, down-regulates to carrying capacity, according to frequencies (with poisson sampling)
+    """
     total_population = [0, 0]
     mutant_frequencies = [0., 0.]
     for i in iteration_list:
@@ -121,6 +151,9 @@ def down_regulate_density(mutants_in_world, wildtypes_in_world):
 
 
 def up_regulate_density(mutants_in_world, wildtypes_in_world):
+    """
+    If population in non-deteriorated deme is too low, down-regulates to carrying capacity, according to frequencies (with poisson sampling).
+    """
     total_population = [0, 0]
     mutant_frequencies = [0., 0.]
     for i in iteration_list:
@@ -136,10 +169,12 @@ def up_regulate_density(mutants_in_world, wildtypes_in_world):
 
 
 def is_rescued(percentage_threshold):
-    # Condition for rescue: if mutants have attained a certain
-    # threshold (in terms of percentage carrying capacity in the whole habitat (cf Uecker)
-    if generation > BURNING_PHASE:
-        if sum(list_of_mutants) >= percentage_threshold*total_carrying_capacity:
+    """
+    Changes flag is_rescued to True at the end of generation, so that simulation can stop when rescue is achieved.
+    Condition for rescue: if mutants have attained a certain threshold (in terms of percentage carrying capacity in the whole habitat (cf Uecker et al. 2014))
+    """
+    if generation > BURNING_PHASE:   # rescue can only occur after the borning phase
+        if sum(list_of_mutants) >= percentage_threshold * total_carrying_capacity:
             return True
         else:
             return False
@@ -170,6 +205,7 @@ for line in parameters_to_read:
      ratio_between_migrations, replicates, probability_of_rescue, confidence_interval] = line
 
     number_of_demes = int(number_of_demes)
+
     if number_of_demes != 2:
         raise ValueError('There are more than 2 demes!')
 
@@ -181,15 +217,16 @@ for line in parameters_to_read:
     iterate_over_generations = np.linspace(1., total_replicate_time, total_replicate_time)
 
     # This is the window of time within which a mutation can occur. It is set to a very large value, but can be reduced.
-    WINDOW_OF_MUTATION = [0, 0]
+    # (useful if one wants to look only at standing genetic variation)
+    WINDOW_OF_MUTATION = [0, 100000000]
 
-    deme_carrying_capacity_1 = math.ceil(total_carrying_capacity*ratio_between_capacities)
+    deme_carrying_capacity_1 = math.ceil(total_carrying_capacity * ratio_between_capacities)
     deme_carrying_capacity_2 = total_carrying_capacity - deme_carrying_capacity_1
     carrying_capacities = [deme_carrying_capacity_1, deme_carrying_capacity_2]
     iteration_list = list(range(number_of_demes))
 
-    migration_rate_1to2 = migration_rate*ratio_between_migrations
-    migration_rate_2to1 = migration_rate*(1-ratio_between_migrations)
+    migration_rate_1to2 = migration_rate * ratio_between_migrations
+    migration_rate_2to1 = migration_rate * (1 - ratio_between_migrations)
 
     if not STANDING_GENETIC_VARIATION:
         initial_frequency = 0.0
@@ -266,4 +303,4 @@ for line in parameters_to_read:
     np.savetxt(output, parameters_to_append, delimiter='\t', fmt='%.5f')
     output.close()
 
-print ('time of execution: {}'.format(time.time() - start_time))
+print('time of execution: {}'.format(time.time() - start_time))

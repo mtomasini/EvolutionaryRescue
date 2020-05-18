@@ -13,7 +13,7 @@ Version: Python 3.x (last tested, Python 3.6)
 
 import numpy as np
 
-header = [['Theta', 'Demes', 'TotalKappa', 'migration', 'isGlobal', 'mutation', 'frequency', 'growth', 's2', 'r', 's1',
+header = [['Theta', 'Demes', 'TotalKappa', 'migration', 'isGlobal', 'mutation', 'frequency', 'growth', 's', 'r', 'z',
            'RatioCapacities', 'RatioMigration', 'replicates', 'Rescue', 'Error']]
 output = open('Parameters.txt', 'w')
 np.savetxt(output, header, fmt='%s')
