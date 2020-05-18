@@ -192,8 +192,8 @@ parameters_to_read = np.loadtxt(file_of_parameters, skiprows=1, delimiter='\t')
 file_of_parameters.close()
 
 # write header into output file
-header = [['OneEpoch', 'Demes', 'TotalKappa', 'migration', 'mutation', 'frequency', 'growth', 's2', 'r',
-           's1', 'RatioCapacities', 'RatioMigration', 'replicates', 'Rescue', 'Error']]
+header = [['OneEpoch', 'Demes', 'TotalKappa', 'migration', 'mutation', 'frequency', 'growth', 's', 'r',
+           'z', 'RatioCapacities', 'RatioMigration', 'replicates', 'Rescue', 'Error']]
 output_file = 'Simulation_output'
 output = open('%s.txt' % output_file, 'w')
 np.savetxt(output, header, fmt='%s')
