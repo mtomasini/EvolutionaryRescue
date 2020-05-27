@@ -199,25 +199,33 @@ output = open('%s.txt' % output_file, 'w')
 np.savetxt(output, header, fmt='%s')
 output.close()
 
+# Every line in parameters_to_read is a combination of parameters to test.
 for line in parameters_to_read:
     [number_of_generations, number_of_demes, total_carrying_capacity, migration_rate, mutation_rate,
      initial_frequency, growth_rate, selection_against, stress, selection_for, ratio_between_capacities,
      ratio_between_migrations, replicates, probability_of_rescue, confidence_interval] = line
 
     number_of_demes = int(number_of_demes)
-
+    
+    # stop program if more than two demes (to avoid confusion with multiple demes model I was testing at the same time)
     if number_of_demes != 2:
         raise ValueError('There are more than 2 demes!')
 
+    # change of variables that I would sometimes use to modify number_of_generations manually.
     epoch = number_of_generations
 
+    # homemade iterator done before I learned to code in python properly.
     iterate_over_replicates = np.linspace(1., replicates, replicates)
 
     total_replicate_time = BURNING_PHASE + epoch + BURNING_OFF
+    
+    # another homemade iterator
     iterate_over_generations = np.linspace(1., total_replicate_time, total_replicate_time)
 
-    # This is the window of time within which a mutation can occur. It is set to a very large value, but can be reduced.
-    # (useful if one wants to look only at standing genetic variation)
+    """
+    This is the window of time within which a mutation can occur. It is set to a very large value, but can be reduced.
+    (e.g. useful if one wants to look only at standing genetic variation, by setting WINDOW_OF_MUTATION[1] = 0)
+    """
     WINDOW_OF_MUTATION = [0, 100000000]
 
     deme_carrying_capacity_1 = math.ceil(total_carrying_capacity * ratio_between_capacities)
@@ -231,13 +239,16 @@ for line in parameters_to_read:
     if not STANDING_GENETIC_VARIATION:
         initial_frequency = 0.0
 
-    result_of_replicate = []  # this keeps track of rescue events.
-
+    # keep track of rescue events 
+    result_of_replicate = []  
+    
     for replicate in iterate_over_replicates:
+        # initialize flag to know through generations if replicate was rescued already 
         has_survived_yet = False
 
         list_of_populations = [deme_carrying_capacity_1, deme_carrying_capacity_2]
 
+        # we separately follow mutants and wildtypes. Each list has two elements, one per demes (goes for totals, mutants and wildtypes).
         list_of_mutants = []
         for i in iteration_list:
             mutants_in_deme = math.ceil(list_of_populations[i] * initial_frequency)
@@ -248,9 +259,11 @@ for line in parameters_to_read:
             wildtypes_in_deme = list_of_populations[i] - list_of_mutants[i]
             list_of_wildtypes.append(wildtypes_in_deme)
 
+        # deterioration state, used when evaluating the expected number of offspring per type of individuals
         deme_deterioration_state = [False] * number_of_demes
 
         for generation in iterate_over_generations:
+            # at the end of the generation, has_survived_yet is evaluated and is set to True if rescue occurred.
             if has_survived_yet:
                 break
 
@@ -258,14 +271,17 @@ for line in parameters_to_read:
                 down_regulate_density(list_of_mutants, list_of_wildtypes)
                 up_regulate_density(list_of_mutants, list_of_wildtypes)
 
+            # this sets deme_deterioration_state[0] and [1] to True when reach the right generation
             deteriorate(generation)
 
             reproduce(list_of_mutants, list_of_wildtypes)
 
             list_of_new_mutants = generate_new_mutants(list_of_wildtypes)
 
+            # creates a list of offspring (total = mutant + wildtype) that will then become the population for next generation.
             total_after_reproduction = []
 
+            # adds generated new mutants to list of populations
             for i in iteration_list:
                 if list_of_new_mutants[i] > list_of_wildtypes[i]:
                     list_of_new_mutants[i] = list_of_wildtypes[i]
@@ -279,14 +295,21 @@ for line in parameters_to_read:
             for i in iteration_list:
                 list_of_populations[i] = list_of_mutants[i] + list_of_wildtypes[i]
 
+            # gets out of replicate simulation if total population in the habitat dies out
             if sum(list_of_populations) == 0:
                 break
 
             has_survived_yet = is_rescued(THRESHOLD)
-
+            
+            """
+            We can decide that if a population gets to the end of the replicate without dying out, it is considered rescued.
+            With the burning off that we picked, this does not affect results, so I commented it out. 
+            
             if generation == total_replicate_time:
                 has_survived_yet = True
+            """
 
+        # If replicate has ended because of extinction, has_survived_yet = False and event is not counted as rescue.
         if has_survived_yet:
             result_of_replicate.append(True)
 
