@@ -7,4 +7,4 @@ The script 'parameters.py' creates the text file containing all sets of paramete
 
 I also added the R scripts used to generate the figures in the main text. Unfortunately, the code used to generate figure 5 was corrupted and could not be retrieved.
 
-For inquiries and questions, feel free to open an issue here on github or to DM me.
+For quick inquiries and questions about the code, feel free to open an issue here on github or to DM me on Twitter, @mattomasini; for more complicated questions, please write to Dr. Stephan Peischl (you can find the address in the paper).
