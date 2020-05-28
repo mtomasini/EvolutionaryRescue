@@ -5,6 +5,6 @@ The scripts were never supposed to be released, and I did not take particular ca
 
 The script 'parameters.py' creates the text file containing all sets of parameters to be tested (just add the parameters you want to test to the lists in the beginning of the script), needed to run 'main_simulation.py'. I added an example of 'parameters.txt' file.  
 
-I also added the scripts used to generate the figures in the main text. Unfortunately, the code used to generate figure 5 was corrupted and could not be retrieved.
+I also added the R scripts used to generate the figures in the main text. Unfortunately, the code used to generate figure 5 was corrupted and could not be retrieved.
 
 For inquiries and questions, feel free to open an issue here on github or to DM me.
