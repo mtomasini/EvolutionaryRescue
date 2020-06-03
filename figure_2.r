@@ -1,6 +1,5 @@
 # FIGURE 2
 
-
 ER <- read.table("sim_200204.txt", header = T)
 
 list_theta <- unique(ER$Theta)

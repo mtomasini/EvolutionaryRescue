@@ -1,5 +1,5 @@
 options(digits=10)
-# COMPARISONS MODEL WITH ASYMMETRIC QUANTITIES
+# FIGURE 4
 kappa = 10000
 u = 1/(2*kappa)
 

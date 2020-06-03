@@ -1,4 +1,6 @@
-######-
+## FIGURE 1
+
+### simulation of population dynamics in deme 1
 par(mfrow=c(2:1))
 par(mar = c(2,4.1,3,4))
 
@@ -38,7 +40,7 @@ mtext("Deme 1", side = 4, cex=1.3)
 legend(10,0.8,col=c("black","darkred","dodgerblue4"),c("total","mutant","wildtype"),lwd=2,horiz=FALSE)
 
 
-###
+### simulation of population dynamics in deme 2
 par(mar = c(4,4.1,1,4))
 wt2 = rep(k*0.98,3*theta)
 mut2 = rep(0.02,3*theta)
@@ -66,6 +68,8 @@ wt2 = wt2 + rnorm(300,0,0.01)
 mut2 = mut2 + rnorm(300,0,0.01)
 mut2[mut2<0.03]=0
 
+
+## plotting
 plot(wt2,ylim=c(0,1),xlim=c(0,300),type="l",lwd=2,col="dodgerblue4",xlab="Time",axes=F,ylab  ="Population size", cex.lab=1.3)
 polygon(c(0,2*theta,2*theta,0),c(0,0,1,1),col=rgb(0.1,0.8,0.1,0.3))
 polygon(c(2*theta,3*theta,3*theta,2*theta),c(0,0,1,1),col=rgb(0.8,0.1,0.1,0.3))

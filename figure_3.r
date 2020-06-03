@@ -1,3 +1,5 @@
+# FIGURE 3
+
 par(mar=c(5, 4.2, 4, 2))
 migr <- seq(1e-4, 0.5, by = 1e-4)
 
