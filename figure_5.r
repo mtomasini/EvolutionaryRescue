@@ -4,8 +4,8 @@
 # to scientific notation. Colors and font sizes could be different than the version
 # present in the paper.
 
-data.rho <- read.table("190115.txt", header=T)
-data.inst <- read.table("180903.txt", header=T)
+data.rho <- read.table("simulation_190115.txt", header=T)
+data.inst <- read.table("simulation_180903.txt", header=T)
 
 pars.rho <- (data.rho$Theta == 100 & data.rho$s == 0.1 & data.rho$r == 0.9)
 filtered.rho <- data.rho[pars.rho,]
