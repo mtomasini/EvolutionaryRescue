@@ -1,6 +1,6 @@
 # FIGURE 2
 
-ER <- read.table("sim_200204.txt", header = T)
+ER <- read.table("~/Documenti/UniBe/EvolutionaryRescue/sim_200204.txt", header = T)
 
 list_theta <- unique(ER$Theta)
 list_z <- unique(ER$z)
@@ -32,3 +32,4 @@ for (z in list_z){
 }
 mtext("migration rate",side=1,line=0,outer=TRUE,cex=1.9)
 mtext("Probability of rescue",side=2,line=0,outer=TRUE,cex=1.9,las=0)
+

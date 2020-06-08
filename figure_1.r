@@ -1,6 +1,8 @@
 ## FIGURE 1
 
 ### simulation of population dynamics in deme 1
+png("~/Documenti/UniBe/EvolutionaryRescue/figure_1.png", 
+    units = "in", width=7, height=7, res=1000)
 par(mfrow=c(2:1))
 par(mar = c(2,4.1,3,4))
 
@@ -80,3 +82,4 @@ axis(2,at=c(0,1),labels=c("0","K"), cex.axis=1.3)
 
 mtext("Deme 2", side=4, cex=1.3)
 legend(10,0.8,fill=c(rgb(0.1,0.8,0.1,0.3),rgb(0.9,0.1,0.1,0.3)),c("original","deteriorated"))
+dev.off()
